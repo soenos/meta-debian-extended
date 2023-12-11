@@ -11,11 +11,12 @@ LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263\
                     file://iptables/iptables.c;beginline=13;endline=25;md5=c5cffd09974558cf27d0f763df2a12dc"
 
-inherit debian-package
+inherit debian-package ptest
 require recipes-debian/sources/iptables.inc
 
 FILESPATH_append = ":${COREBASE}/meta/recipes-extended/iptables/iptables:"
 SRC_URI += " \
+           file://run-ptest \
            file://0001-configure-Add-option-to-enable-disable-libnfnetlink.patch \
            file://0002-configure.ac-only-check-conntrack-when-libnfnetlink-enabled.patch \
 "
@@ -67,3 +68,15 @@ RRECOMMENDS_${PN} = " \
     kernel-module-nf-nat \
     kernel-module-ipt-masquerade \
 "
+
+do_install_ptest () {
+    install -d ${D}${PTEST_PATH}/tests
+
+    cp -r ${B}/extensions ${D}${PTEST_PATH}/
+    find ${D}${PTEST_PATH}/extensions ! -executable -type f -delete
+    ln -s ${sbindir}/xtables-legacy-multi ${D}${PTEST_PATH}/
+
+    cp -r ${S}/iptables/tests/shell ${D}${PTEST_PATH}/tests/
+}
+
+RDEPENDS_${PN}-ptest = "bash diffutils findutils util-linux"
