@@ -14,7 +14,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=f2e071ab72978431b294a0d696327421 \
 # cairo >= 1.14
 DEPENDS = "cairo"
 
-inherit debian-package
+inherit debian-package ptest
 require recipes-debian/sources/pycairo.inc
 
 DEBIAN_QUILT_PATCHES = ""
@@ -38,3 +38,15 @@ do_install_append() {
 }
 FILES_${PN} += "${datadir}/include/pycairo/py3cairo.h"
 FILES_${PN} += "${libdir}/pkgconfig/py3cairo.pc"
+
+SRC_URI += " \
+           file://run-ptest \
+"
+
+do_install_ptest () {
+    install -d ${D}${PTEST_PATH}/
+    cp -r ${B}/tests ${D}${PTEST_PATH}/
+    cp ${WORKDIR}/run-ptest ${D}${PTEST_PATH}/
+}
+
+RDEPENDS_${PN}-ptest = "python3-pytest"
