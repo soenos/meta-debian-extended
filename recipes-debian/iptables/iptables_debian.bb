@@ -77,6 +77,7 @@ do_install_ptest () {
     ln -s ${sbindir}/xtables-legacy-multi ${D}${PTEST_PATH}/
 
     cp -r ${S}/iptables/tests/shell ${D}${PTEST_PATH}/tests/
+    find ${D}${PTEST_PATH}/tests/shell/ -type f -exec chmod +x {} \;
 }
 
 RDEPENDS_${PN}-ptest = "bash diffutils findutils util-linux"
