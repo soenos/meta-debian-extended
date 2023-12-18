@@ -5,6 +5,4 @@ SRC_URI += " \
 RDEPENDS_${PN}-ptest_append_libc-glibc += "\
             locale-base-ja-jp \
             locale-base-fr-fr \
-            glibc-localedata-fr-fr \
-            glibc-binary-localedata-fr-fr \
            "
