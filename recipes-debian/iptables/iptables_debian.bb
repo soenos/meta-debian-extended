@@ -77,7 +77,48 @@ do_install_ptest () {
     ln -s ${sbindir}/xtables-legacy-multi ${D}${PTEST_PATH}/
 
     cp -r ${S}/iptables/tests/shell ${D}${PTEST_PATH}/tests/
-    find ${D}${PTEST_PATH}/tests/shell/ -type f -exec chmod +x {} \;
+    testcases=${D}${PTEST_PATH}/tests/shell/testcases
+    if [ -d $testcases ]; then
+        chmod +x $testcases/*/*_[0-9]
+        cmd='for tbl in nat mangle raw security; do iptables -t $tbl -F; iptables -t $tbl -X; rmmod iptable_$tbl; done'
+        sed  -i -e "N;/do_simple()[ \n]*{/a $cmd" $testcases/*/*_[0-9]
+        old='-j CT --helper \([^ ]\+\)'
+        new='-m helper --helper \1 -j CT'
+        sed -i -e "s/$old/$new/" $testcases/*/dumps/*
+    fi
 }
 
 RDEPENDS_${PN}-ptest = "bash diffutils findutils util-linux"
+RRECOMMENDS_${PN}-ptest = " \
+    kernel-module-iptable-mangle \
+    kernel-module-iptable-raw \
+    kernel-module-iptable-security \
+    kernel-module-ip6-tables \
+    kernel-module-ip6table-raw \
+    kernel-module-ip6table-mangle \
+    kernel-module-ip6table-nat \
+    kernel-module-ip6table-filter \
+    kernel-module-ip6table-security \
+    kernel-module-nfnetlink \
+    kernel-module-nfnetlink-log \
+    kernel-module-xt-nflog \
+    kernel-module-xt-multiport \
+    kernel-module-xt-log \
+    kernel-module-xt-mac \
+    kernel-module-xt-tcpmss \
+    kernel-module-xt-limit \
+    kernel-module-xt-ct \
+    kernel-module-xt-helper \
+    kernel-module-xt-checksum \
+    kernel-module-xt-state \
+    kernel-module-xt-mark \
+    kernel-module-xt-comment \
+    kernel-module-xt-tcpudp \
+    kernel-module-xt-conntrack \
+    kernel-module-nf-log-common \
+    kernel-module-nf-log-ipv4 \
+    kernel-module-nf-conntrack-pptp \
+    kernel-module-nf-conntrack-netbios-ns \
+    kernel-module-ipt-reject \
+    kernel-module-ip6t-reject \
+"
